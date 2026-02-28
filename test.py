@@ -16,3 +16,12 @@ try:
     t4 = Tensor([[[1, 2]], [[3]]])
 except ValueError as e:
     print("Caught expected error:", e)
+
+t_zeros = Tensor.zeros(2, 3)
+print(t_zeros)  # Should show a tensor with shape (2,3) filled with 0.0
+
+t_ones = Tensor.ones(3, 2, 4)
+print(t_ones.shape)  # (3,2,4)
+
+t_rand = Tensor.randn(5, 5)
+print(t_rand)  # Should show random numbers
