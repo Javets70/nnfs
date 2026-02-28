@@ -2,26 +2,34 @@ class Tensor:
     def __init__(self, data):
         if not isinstance(data, list):
             raise ValueError("Data must be of type list")
-        self._data = []
         if len(data) == 0:
-            raise ValueError("Data must be of atleast length 1")
-        # calculating the shape
-        self._shape = self._get_shape(data)
+            raise ValueError("Data must be of at least length 1")
+        self._shape = self._infer_shape(data)
 
-    def _get_shape(self, data) -> list:
-        if isinstance(data, list):
-            return [len(data)] + self._get_shape(data[0])
-        return []
+        self._data = []
+        self._flatten(data)
 
-    def _get_data(self, data) -> list:
+    def _infer_shape(self, data):
+        if not isinstance(data, list):
+            return ()
+        if not data:
+            raise ValueError("Empty sublists are not allowed")
+
+        first_shape = self._infer_shape(data[0])
+        for item in data[1:]:
+            if self._infer_shape(item) != first_shape:
+                raise ValueError(
+                    "Inconsistent nested structure: all dimensions must be rectangular"
+                )
+
+        return (len(data),) + first_shape
+
+    def _flatten(self, data) -> list:
         if isinstance(data, list):
-            if len({len(item) for item in data}) > 1:
-                raise ValueError("All dimensions must be consistent")
             for item in data:
-                self._get_data(item)
+                self._flatten(item)
         else:
-            for i in data:
-                self._data.append(i)
+            self._data.append(data)
 
     @property
     def data(self) -> list:
@@ -30,3 +38,9 @@ class Tensor:
     @property
     def shape(self) -> tuple:
         return self._shape
+
+    def __repr__(self):
+        return f"Tensor(shape={self._shape}, data={self._data[:5]}{'...' if len(self._data) > 5 else ''})"
+
+    def __str__(self):
+        return f"Tensor({self._data}, shape={self._shape})"
